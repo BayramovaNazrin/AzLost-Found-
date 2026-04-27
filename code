@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AzLost & Found | İtmiş Əşyalar İdarəetmə Sistemi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CSS DEYİŞƏNLƏRİ VƏ BAZA STİLLƏRİ
+           ========================================================================== */
+        :root {
+            --primary-color: #0f4c81; /* Klassik Mavi - Güvən rəngi */
+            --primary-dark: #0a365c;
+            --secondary-color: #fca311;
+            --bg-color: #f4f7f6;
+            --surface-color: #ffffff;
+            --text-main: #333333;
+            --text-muted: #6c757d;
+            --border-color: #e2e8f0;
+            --metro-color: #e63946;
+            --bus-color: #2a9d8f;
+            --train-color: #023e8a;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+        button { cursor: pointer; border: none; outline: none; background: transparent; font-family: inherit; }
+        input, select, textarea { font-family: inherit; outline: none; }
+
+        /* ==========================================================================
+           NAVİQASİYA VƏ HEADER
+           ========================================================================== */
+        .navbar {
+            background-color: var(--surface-color);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover { background-color: var(--primary-dark); transform: translateY(-2px); }
+
+        /* ==========================================================================
+           HERO BÖLMƏSİ VƏ STATİSTİKA
+           ========================================================================== */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none"/></svg>') repeat;
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; line-height: 1.2; }
+        .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: -3rem;
+            position: relative;
+            z-index: 10;
+            padding: 0 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stat-card {
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .stat-card i { font-size: 2rem; color: var(--primary-color); margin-bottom: 0.5rem; }
+        .stat-card h3 { font-size: 2rem; color: var(--text-main); margin-bottom: 0.2rem; }
+        .stat-card p { color: var(--text-muted); font-weight: 500; font-size: 0.9rem; }
+
+        /* ==========================================================================
+           ƏSAS TƏTBİQ LAYOUT (SIDEBAR + MAIN CONTENT)
+           ========================================================================== */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            margin: 4rem auto;
+            min-height: 600px;
+        }
+
+        /* SIDEBAR (Filtrlər) */
+        .sidebar {
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .filter-group { margin-bottom: 1.5rem; }
+        .filter-group h4 { margin-bottom: 1rem; color: var(--text-main); border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; }
+        
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .radio-label:hover { color: var(--primary-color); }
+        .radio-label input[type="radio"] { accent-color: var(--primary-color); transform: scale(1.2); }
+
+        .date-filter input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-block {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .btn-block:hover { background-color: #e2e8f0; }
+
+        /* ƏSAS MƏZMUN (Nəticələr) */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface-color);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.1); }
+        .search-box i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        .view-controls { display: flex; gap: 0.5rem; align-items: center; }
+        .view-btn {
+            padding: 0.5rem;
+            border-radius: 4px;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+        .view-btn.active, .view-btn:hover { background: var(--bg-color); color: var(--primary-color); }
+        .sort-select { padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-main); }
+
+        /* NƏTİCƏLƏR QRAFİQİ VƏ SİYAHISI */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .item-card {
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: var(--transition);
+            border-top: 4px solid transparent;
+            position: relative;
+        }
+
+        .item-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+
+        /* Dinamik Rənglər */
+        .item-card.type-metro { border-top-color: var(--metro-color); }
+        .item-card.type-bus { border-top-color: var(--bus-color); }
+        .item-card.type-train { border-top-color: var(--train-color); }
+
+        .card-header { padding: 1.2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.3rem; }
+        .card-badge { padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: white; }
+        
+        .badge-metro { background-color: var(--metro-color); }
+        .badge-bus { background-color: var(--bus-color); }
+        .badge-train { background-color: var(--train-color); }
+
+        .card-body { padding: 1.2rem; }
+        .detail-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; color: var(--text-muted); font-size: 0.9rem; }
+        .detail-row i { width: 16px; text-align: center; color: var(--primary-color); }
+
+        .card-footer { padding: 1rem 1.2rem; background-color: var(--bg-color); border-top: 1px solid var(--border-color); text-align: center; }
+        .btn-details { color: var(--primary-color); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        .btn-details:hover { text-decoration: underline; }
+
+        /* SİYAHI GÖRÜNÜŞÜ ÜÇÜN XÜSUSİ STİLLƏR */
+        .results-list .item-card { display: flex; flex-direction: row; align-items: center; border-top: none; border-left: 4px solid transparent; }
+        .results-list .item-card.type-metro { border-left-color: var(--metro-color); }
+        .results-list .item-card.type-bus { border-left-color: var(--bus-color); }
+        .results-list .item-card.type-train { border-left-color: var(--train-color); }
+        .results-list .card-header { border-bottom: none; border-right: 1px solid var(--border-color); width: 30%; }
+        .results-list .card-body { display: flex; width: 50%; gap: 2rem; padding: 0 1.2rem; }
+        .results-list .detail-row { margin-bottom: 0; }
+        .results-list .card-footer { width: 20%; background: transparent; border-top: none; border-left: 1px solid var(--border-color); }
+
+        /* PAGINATION */
+        .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; }
+        .page-btn { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px; background: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-main); font-weight: 600; transition: var(--transition); }
+        .page-btn:hover:not(:disabled) { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .page-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ==========================================================================
+           MODAL (YENİ ƏŞYA ƏLAVƏ ETMƏK)
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; visibility: hidden; transition: var(--transition);
+        }
+
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+
+        .modal {
+            background: var(--surface-color);
+            width: 100%; max-width: 600px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-20px); transition: var(--transition);
+            max-height: 90vh; overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal { transform: translateY(0); }
+
+        .modal-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 1.25rem; font-weight: 700; color: var(--primary-color); }
+        .close-modal { font-size: 1.5rem; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+        .close-modal:hover { color: var(--danger-color); }
+
+        .modal-body { padding: 1.5rem; }
+        
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
+        .form-control { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 4px; transition: var(--transition); }
+        .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.1); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+
+        .modal-footer { padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; }
+        .btn-secondary { background: var(--border-color); color: var(--text-main); padding: 0.6rem 1.2rem; border-radius: 4px; font-weight: 600; }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-submit { background: var(--success-color); color: white; padding: 0.6rem 1.5rem; border-radius: 4px; font-weight: 600; }
+        .btn-submit:hover { background: #218838; }
+
+        /* ==========================================================================
+           TOAST BİLDİRİŞLƏRİ
+           ========================================================================== */
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
+        .toast {
+            background: white; border-left: 5px solid var(--success-color);
+            padding: 1rem 1.5rem; border-radius: 4px; box-shadow: var(--shadow-md);
+            display: flex; align-items: center; gap: 1rem; min-width: 250px;
+            transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast.show { transform: translateX(0); }
+        .toast i { color: var(--success-color); font-size: 1.2rem; }
+        .toast.error { border-left-color: var(--danger-color); }
+        .toast.error i { color: var(--danger-color); }
+
+        /* ==========================================================================
+           FOOTER VƏ LOADER
+           ========================================================================== */
+        footer { background: var(--primary-dark); color: white; padding: 3rem 0 1.5rem; margin-top: 4rem; }
+        .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 2rem; }
+        .footer-col h4 { margin-bottom: 1rem; font-size: 1.2rem; color: var(--secondary-color); }
+        .footer-col p, .footer-col ul li { opacity: 0.8; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .footer-bottom { text-align: center; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; opacity: 0.7; }
+
+        .loader-container { display: flex; justify-content: center; align-items: center; height: 200px; width: 100%; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ==========================================================================
+           RESPONSIVE DİZAYN (Media Queries)
+           ========================================================================== */
+        @media (max-width: 1024px) {
+            .app-container { grid-template-columns: 1fr; }
+            .sidebar { position: static; margin-bottom: 2rem; }
+            .stats-container { grid-template-columns: repeat(2, 1fr); margin-top: 2rem; padding: 0 1rem; }
+            .hero { padding: 3rem 1rem; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; } /* Mobil menyu qısa kəsilib */
+            .toolbar { flex-direction: column; gap: 1rem; align-items: stretch; }
+            .search-box { max-width: 100%; }
+            .results-list .item-card { flex-direction: column; }
+            .results-list .card-header, .results-list .card-body, .results-list .card-footer { width: 100%; border: none; border-bottom: 1px solid var(--border-color); padding: 1rem; }
+            .footer-grid { grid-template-columns: 1fr; text-align: center; }
+        }
+
+        /* Əlavə edilmiş səhifələr üçün stil */
+        .page-content {
+            padding: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="logo">
+                <i class="fas fa-box-open"></i> AzLost & Found
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('home')" class="active" id="nav-home">Ana Səhifə</a></li>
+                <li><a href="#" onclick="showPage('about')" id="nav-about">Haqqında</a></li>
+                <li><a href="#" onclick="showPage('rules')" id="nav-rules">Qaydalar</a></li>
+                <li><a href="#" onclick="showPage('contact')" id="nav-contact">Əlaqə</a></li>
+            </ul>
+            <button class="btn-primary" onclick="openModal()">
+                <i class="fas fa-plus"></i> Tapıntı Qeyd Et
+            </button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>İtmiş əşyalarınızı asanlıqla tapın</h1>
+            <p>Bakı Metropoliteni, BakuBus və ADY qatarlarında tapılan bütün əşyalar vahid və təhlükəsiz bazada.</p>
+        </div>
+    </section>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <i class="fas fa-check-circle"></i>
+            <h3 id="statTotal">0</h3>
+            <p>Ümumi Tapıntı</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-subway"></i>
+            <h3 id="statMetro">0</h3>
+            <p>Metroda</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-bus"></i>
+            <h3 id="statBus">0</h3>
+            <p>Avtobusda</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-train"></i>
+            <h3 id="statTrain">0</h3>
+            <p>Qatarda</p>
+        </div>
+    </div>
+
+    <main class="container app-container">
+        
+        <aside class="sidebar">
+            <div class="filter-group">
+                <h4>Nəqliyyat Növü</h4>
+                <label class="radio-label">
+                    <input type="radio" name="transportType" value="all" checked> Bütün Nəqliyyat
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="transportType" value="metro"> 🚇 Bakı Metropoliteni
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="transportType" value="bus"> 🚌 BakuBus
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="transportType" value="train"> 🚆 ADY (Qatarlar)
+                </label>
+            </div>
+
+            <div class="filter-group">
+                <h4>Tarix Aralığı</h4>
+                <div class="date-filter">
+                    <input type="date" id="filterDateFrom" title="Başlanğıc Tarix">
+                    <input type="date" id="filterDateTo" title="Bitiş Tarix">
+                </div>
+            </div>
+
+            <button class="btn-block" onclick="resetFilters()">
+                <i class="fas fa-sync-alt"></i> Filtrləri Sıfırla
+            </button>
+        </aside>
+
+        <section class="main-content">
+            
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Əşya adı, rəngi, sənəd nömrəsi, stansiya...">
+                </div>
+                
+                <div class="view-controls">
+                    <select class="sort-select" id="sortSelect">
+                        <option value="newest">Ən Yenilər</option>
+                        <option value="oldest">Ən Köhnələr</option>
+                        <option value="az">A-Z (Əlifba)</option>
+                    </select>
+                    <button class="view-btn active" id="btnGrid" title="Qrafiq Görünüşü"><i class="fas fa-th-large"></i></button>
+                    <button class="view-btn" id="btnList" title="Siyahı Görünüşü"><i class="fas fa-list"></i></button>
+                </div>
+            </div>
+
+            <div id="dataContainer" class="results-grid">
+                <div class="loader-container"><div class="spinner"></div></div>
+            </div>
+
+            <div class="pagination" id="pagination">
+                </div>
+
+        </section>
+    </main>
+
+    <!-- ====================== HAQQINDA SƏHİFƏSİ ====================== -->
+    <div id="page-about" class="page-content" style="display: none;">
+        <div class="container" style="max-width: 900px; margin: 4rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <h1 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">AzLost & Found Haqqında</h1>
+            <p style="font-size: 1.1rem; line-height: 1.8;">
+                AzLost & Found, Azərbaycanda ictimai nəqliyyatda (Bakı Metropoliteni, BakuBus və ADY qatarlarında) 
+                itirilmiş əşyaları vahid platformada birləşdirən hackathon layihəsidir.
+            </p>
+            <p style="font-size: 1.1rem; line-height: 1.8;">
+                Məqsədimiz vətəndaşların vaxtını qənaət etmək və itirilmiş əşyaların sahiblərinə qaytarılmasını sürətləndirməkdir.
+            </p>
+            
+            <h2 style="margin: 2rem 0 1rem; color: var(--primary-color);">Necə işləyir?</h2>
+            <ul style="padding-left: 1.5rem; line-height: 1.8;">
+                <li>Nəqliyyat işçiləri tapdıqları əşyaları sistemə qeyd edir.</li>
+                <li>İtirmiş şəxslər axtarış edərək öz əşyalarını tapa bilirlər.</li>
+                <li>Tapılan əşyalar müvafiq qurumların itmiş əşyalar anbarına təhvil verilir.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ====================== QAYDALAR SƏHİFƏSİ ====================== -->
+    <div id="page-rules" class="page-content" style="display: none;">
+        <div class="container" style="max-width: 900px; margin: 4rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <h1 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Qaydalar və Şərtlər</h1>
+            
+            <h3>1. Tapıntıların qeydiyyatı</h3>
+            <p>Yalnız real tapılmış əşyalar qeydə alınmalıdır. Saxta məlumat daxil etmək qadağandır.</p>
+            
+            <h3>2. Əşyanı necə geri almaq olar?</h3>
+            <p>Əşyanızı tapdıqdan sonra “Ətraflı Məlumat” düyməsinə klikləyin və aşağıdakı addımları izləyin.</p>
+            
+            <h3>3. Məxfilik</h3>
+            <p>Şəxsi məlumatlar (şəxsiyyət vəsiqəsi nömrəsi və s.) yalnız anbar işçiləri tərəfindən görünür.</p>
+        </div>
+    </div>
+
+    <!-- ====================== ƏLAQƏ SƏHİFƏSİ ====================== -->
+    <div id="page-contact" class="page-content" style="display: none;">
+        <div class="container" style="max-width: 900px; margin: 4rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: var(--shadow-md); text-align: center;">
+            <h1 style="color: var(--primary-color);">Əlaqə</h1>
+            <p style="font-size: 1.1rem;">Suallarınız və ya təklifləriniz üçün:</p>
+            <p><strong>Email:</strong> info@azlostfound.az</p>
+            <p><strong>Telefon:</strong> +994 50 123 45 67</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-clipboard-check"></i> Yeni Tapıntı Qeydiyyatı</h2>
+                <i class="fas fa-times close-modal" onclick="closeModal()"></i>
+            </div>
+            <form id="addItemForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="regTransport">Qurum / Nəqliyyat Növü *</label>
+                        <select id="regTransport" class="form-control" required>
+                            <option value="" disabled selected>Seçin...</option>
+                            <option value="metro">Bakı Metropoliteni</option>
+                            <option value="bus">BakuBus</option>
+                            <option value="train">Azərbaycan Dəmir Yolları (ADY)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="regLocation">Tapıldığı Məkan (Stansiya, Marşrut Nömrəsi) *</label>
+                        <input type="text" id="regLocation" class="form-control" placeholder="Məs: 28 May stansiyası, 65 nömrəli avtobus" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regItemName">Əşyanın Adı və ya Qısa Təsviri *</label>
+                        <input type="text" id="regItemName" class="form-control" placeholder="Məs: Qara dəri pulqabı" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regDate">Tapılma Tarixi *</label>
+                        <input type="date" id="regDate" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regDesc">Əlavə Qeydlər (İstəyə bağlı)</label>
+                        <textarea id="regDesc" class="form-control" placeholder="Əşyanın xüsusi əlamətləri, içindəki əşyalar barədə qısa qeyd (Məxfilik qorunmaqla)..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Ləğv Et</button>
+                    <button type="submit" class="btn-submit">Sistemə Daxil Et</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>AzLost & Found</h4>
+                    <p>Hackathon Layihəsi (Mock Data). Bu sistem vətəndaşların itirdikləri əşyaları mərkəzləşdirilmiş bazada asanlıqla tapması üçün dizayn edilmişdir.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Tərəfdaş Qurumlar (Simulyasiya)</h4>
+                    <ul>
+                        <li><i class="fas fa-chevron-right"></i> Bakı Metropoliteni QSC</li>
+                        <li><i class="fas fa-chevron-right"></i> BakuBus MMC</li>
+                        <li><i class="fas fa-chevron-right"></i> Azərbaycan Dəmir Yolları QSC</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Təhlükəsizlik və Məxfilik</h4>
+                    <p>Sistem veb təhlükəsizliyi prinsipləri nəzərə alınaraq, XSS hücumlarına qarşı qorunma məntiqi ilə (Client-Side) qurulmuşdur.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 AzLost & Found Portalı. Bütün hüquqlar qorunur. (Hackathon Edition)
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           1. DATA (MOCK DATABASE)
+           Məlumat həcmini artıraraq reallığı təmin edirik.
+           ========================================================================== */
+        let database = [
+            { id: 101, type: 'metro', location: 'Elmlər Akademiyası stansiyası', name: 'MacBook Pro noutbuk', date: '2026-04-26', desc: 'Gümüşü rəng, qara çantada.' },
+            { id: 102, type: 'bus', location: '65 nömrəli marşrut xətti', name: 'Qara rəngli pulqabı', date: '2026-04-26', desc: 'İçində şəxsiyyət vəsiqəsi var.' },
+            { id: 103, type: 'train', location: 'Bakı-Sumqayıt sürət qatarı', name: 'Lenovo IdeaPad', date: '2026-04-25', desc: 'Adapteri ilə birlikdə.' },
+            { id: 104, type: 'metro', location: 'İçərişəhər stansiyası', name: 'Açar dəsti (3 ədəd)', date: '2026-04-25', desc: 'BMW breloklu.' },
+            { id: 105, type: 'bus', location: '5 nömrəli avtobus', name: 'Uşaq gödəkçəsi', date: '2026-04-24', desc: 'Qırmızı rəng, ZARA brendi.' },
+            { id: 106, type: 'metro', location: '28 May stansiyası', name: 'Boz rəngli çətir', date: '2026-04-24', desc: 'Avtomat çətir.' },
+            { id: 107, type: 'train', location: 'Ağstafa-Bakı qatarı', name: 'Səyahət çantası', date: '2026-04-23', desc: 'Göy rəngli böyük çamadan.' },
+            { id: 108, type: 'metro', location: 'Gənclik stansiyası', name: 'Tələbə bileti', date: '2026-04-22', desc: 'ADNSU tələbəsinə aiddir.' },
+            { id: 109, type: 'bus', location: '18 nömrəli marşrut', name: 'Simsiz qulaqlıq (AirPods)', date: '2026-04-21', desc: 'Ağ qutuda.' },
+            { id: 110, type: 'metro', location: 'Nizami stansiyası', name: 'Eynək (Optik)', date: '2026-04-20', desc: 'Qara çərçivəli, qabında.' },
+            { id: 111, type: 'train', location: 'Bakı-Gəncə qatarı', name: 'Planşet (iPad)', date: '2026-04-19', desc: 'Ekranı çatlaqdır.' },
+            { id: 112, type: 'bus', location: '88 nömrəli avtobus', name: 'İdman çantası', date: '2026-04-18', desc: 'İçində idman ayaqqabısı var.' }
+        ];
+
+        /* ==========================================================================
+           2. GLOBAL STATE (TƏTBİQİN VƏZİYYƏTİ)
+           ========================================================================== */
+        const state = {
+            viewType: 'grid', // 'grid' və ya 'list'
+            currentPage: 1,
+            itemsPerPage: 6,
+            filteredData: [...database]
+        };
+
+        /* ==========================================================================
+           3. TƏHLÜKƏSİZLİK (SECURITY - XSS SANITIZATION)
+           SOC və Veb təhlükəsizliyi qaydalarına uyğun olaraq istifadəçi daxiletmələrinin 
+           təmizlənməsi (Encoding HTML entities).
+           ========================================================================== */
+        function sanitizeInput(str) {
+            if (!str) return '';
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        }
+
+        /* ==========================================================================
+           4. DOM ELEMENTLƏRİ
+           ========================================================================== */
+        const container = document.getElementById('dataContainer');
+        const paginationContainer = document.getElementById('pagination');
+        const searchInput = document.getElementById('searchInput');
+        const radioFilters = document.querySelectorAll('input[name="transportType"]');
+        const sortSelect = document.getElementById('sortSelect');
+        const btnGrid = document.getElementById('btnGrid');
+        const btnList = document.getElementById('btnList');
+        const addModal = document.getElementById('addModal');
+        const addItemForm = document.getElementById('addItemForm');
+
+        // Statistikalar
+        const statTotal = document.getElementById('statTotal');
+        const statMetro = document.getElementById('statMetro');
+        const statBus = document.getElementById('statBus');
+        const statTrain = document.getElementById('statTrain');
+
+        /* ==========================================================================
+           5. RENDER FUNKSİYALARI (EKRANA YAZDIRMA)
+           ========================================================================== */
+        function updateStats() {
+            statTotal.textContent = database.length;
+            statMetro.textContent = database.filter(i => i.type === 'metro').length;
+            statBus.textContent = database.filter(i => i.type === 'bus').length;
+            statTrain.textContent = database.filter(i => i.type === 'train').length;
+        }
+
+        function renderData() {
+            container.innerHTML = '';
+            
+            if (state.filteredData.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #6c757d;">
+                        <i class="fas fa-search-minus" style="font-size: 3rem; margin-bottom: 1rem; color: #dee2e6;"></i>
+                        <h3>Axtarışınıza uyğun heç nə tapılmadı</h3>
+                        <p>Filtrləri dəyişərək yenidən cəhd edin.</p>
+                    </div>`;
+                renderPagination(0);
+                return;
+            }
+
+            // Səhifələmə (Pagination) Məntiqi
+            const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+            const endIndex = startIndex + state.itemsPerPage;
+            const paginatedData = state.filteredData.slice(startIndex, endIndex);
+
+            paginatedData.forEach(item => {
+                // Type Mapping
+                let typeName, icon, badgeClass;
+                if (item.type === 'metro') { typeName = 'Metro'; icon = 'fa-subway'; badgeClass = 'badge-metro'; }
+                else if (item.type === 'bus') { typeName = 'Avtobus'; icon = 'fa-bus'; badgeClass = 'badge-bus'; }
+                else if (item.type === 'train') { typeName = 'Qatar'; icon = 'fa-train'; badgeClass = 'badge-train'; }
+
+                // Kartın HTML strukturu
+                const card = document.createElement('article');
+                card.className = item-card type-${item.type};
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-badge ${badgeClass}"><i class="fas ${icon}"></i> ${typeName}</div>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Qeydiyyat No: #${item.id}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">${item.name}</h3>
+                        <div class="detail-row">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${item.location}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>${formatDate(item.date)}</span>
+                        </div>
+                        ${state.viewType === 'list' && item.desc ? <div class="detail-row"><i class="fas fa-info-circle"></i> <span>${item.desc}</span></div> : ''}
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-details" onclick="showItemDetails(${item.id})">Ətraflı Məlumat və Qaytarılma</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            renderPagination(Math.ceil(state.filteredData.length / state.itemsPerPage));
+        }
+
+        function renderPagination(totalPages) {
+            paginationContainer.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            // Əvvəlki düymə
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.disabled = state.currentPage === 1;
+            prevBtn.onclick = () => { state.currentPage--; renderData(); };
+            paginationContainer.appendChild(prevBtn);
+
+            // Səhifə nömrələri
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = page-btn ${state.currentPage === i ? 'active' : ''};
+                btn.textContent = i;
+                btn.onclick = () => { state.currentPage = i; renderData(); };
+                paginationContainer.appendChild(btn);
+            }
+
+            // Növbəti düymə
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.disabled = state.currentPage === totalPages;
+            nextBtn.onclick = () => { state.currentPage++; renderData(); };
+            paginationContainer.appendChild(nextBtn);
+        }
+
+        /* ==========================================================================
+           6. FİLTR VƏ AXTARIŞ MƏNTİQİ
+           ========================================================================== */
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const activeType = document.querySelector('input[name="transportType"]:checked').value;
+            const sortVal = sortSelect.value;
+
+            // Filtrasiya
+            state.filteredData = database.filter(item => {
+                const matchType = activeType === 'all' || item.type === activeType;
+                const matchSearch = item.name.toLowerCase().includes(searchTerm) || 
+                                    item.location.toLowerCase().includes(searchTerm);
+                return matchType && matchSearch;
+            });
+
+            // Sıralama
+            if (sortVal === 'newest') {
+                state.filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else if (sortVal === 'oldest') {
+                state.filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
+            } else if (sortVal === 'az') {
+                state.filteredData.sort((a, b) => a.name.localeCompare(b.name));
+            }
+
+            state.currentPage = 1; // Filtr edəndə ilk səhifəyə qaytar
+            renderData();
+        }
+
+        function resetFilters() {
+            searchInput.value = '';
+            document.querySelector('input[value="all"]').checked = true;
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            sortSelect.value = 'newest';
+            applyFilters();
+        }
+
+        /* ==========================================================================
+           7. EVENT LISTENERS
+           ========================================================================== */
+        // Search Input
+        searchInput.addEventListener('input', applyFilters);
+        
+        // Radio Filters
+        radioFilters.forEach(radio => radio.addEventListener('change', applyFilters));
+        
+        // Sort Select
+        sortSelect.addEventListener('change', applyFilters);
+
+        // View Toggles
+        btnGrid.addEventListener('click', () => {
+            state.viewType = 'grid';
+            btnGrid.classList.add('active');
+            btnList.classList.remove('active');
+            container.className = 'results-grid';
+            renderData();
+        });
+
+        btnList.addEventListener('click', () => {
+            state.viewType = 'list';
+            btnList.classList.add('active');
+            btnGrid.classList.remove('active');
+            container.className = 'results-list';
+            renderData();
+        });
+
+        /* ==========================================================================
+           8. MODAL VƏ FORM İDARƏETMƏSİ (CREATE OPERATION)
+           ========================================================================== */
+        function openModal() { addModal.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeModal() { addModal.classList.remove('active'); document.body.style.overflow = 'auto'; addItemForm.reset(); }
+
+        addItemForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Təhlükəsizlik: XSS-ə qarşı daxil olan məlumatları təmizləyirik (Sanitization)
+            const newItem = {
+                id: Math.floor(Math.random() * 9000) + 1000, // Random ID
+                type: sanitizeInput(document.getElementById('regTransport').value),
+                location: sanitizeInput(document.getElementById('regLocation').value),
+                name: sanitizeInput(document.getElementById('regItemName').value),
+                date: sanitizeInput(document.getElementById('regDate').value),
+                desc: sanitizeInput(document.getElementById('regDesc').value)
+            };
+
+            // Yeni datanı bazaya (ən əvvələ) əlavə et
+            database.unshift(newItem);
+            
+            // UI Yenilə
+            closeModal();
+            resetFilters(); // Reset filters həm də renderData çağırır
+            updateStats();
+            
+            // Uğur mesajı
+            showToast('Yeni tapıntı sistemə uğurla əlavə edildi!', 'success');
+        });
+
+        /* ==========================================================================
+           9. YARDIMÇI FUNKSİYALAR (UTILITIES)
+           ========================================================================== */
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('az-AZ', options);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = toast ${type === 'error' ? 'error' : ''};
+            const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle');
+            
+            toast.innerHTML = <i class="fas ${icon}"></i> <div>${message}</div>;
+            document.getElementById('toastContainer').appendChild(toast);
+
+            // Animasiya üçün timeout
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // 3 saniyə sonra silinmə
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /* ==========================================================================
+           10. SƏHİFƏLƏR ARASI KEÇİD
+           ========================================================================== */
+        function showPage(page) {
+            // Bütün səhifələri gizlət
+            document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+            
+            // Ana səhifəni (app-container) göstər/gizlət
+            const mainApp = document.querySelector('.app-container');
+            const hero = document.querySelector('.hero');
+            const stats = document.querySelector('.stats-container');
+            
+            if (page === 'home') {
+                mainApp.style.display = 'grid';
+                hero.style.display = 'block';
+                stats.style.display = 'grid';
+                document.getElementById('page-about').style.display = 'none';
+                document.getElementById('page-rules').style.display = 'none';
+                document.getElementById('page-contact').style.display = 'none';
+            } else {
+                mainApp.style.display = 'none';
+                hero.style.display = 'none';
+                stats.style.display = 'none';
+                
+                if (page === 'about') document.getElementById('page-about').style.display = 'block';
+                if (page === 'rules') document.getElementById('page-rules').style.display = 'block';
+                if (page === 'contact') document.getElementById('page-contact').style.display = 'block';
+            }
+
+            // Aktiv linki vurğula
+            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+            document.getElementById('nav-' + page).classList.add('active');
+        }
+
+        /* ==========================================================================
+           11. ƏTRAFLI MƏLUMAT MODALI (Əşyanı necə geri almaq)
+           ========================================================================== */
+        function showItemDetails(id) {
+            const item = database.find(i => i.id === id);
+            if (!item) return;
+
+            const detailsHTML = `
+                <div style="padding: 2rem; max-width: 650px; margin: 0 auto;">
+                    <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">${item.name}</h2>
+                    
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                        <p><strong>Tapıldığı yer:</strong> ${item.location}</p>
+                        <p><strong>Tarix:</strong> ${formatDate(item.date)}</p>
+                        <p><strong>Təsvir:</strong> ${item.desc || 'Əlavə qeyd yoxdur.'}</p>
+                    </div>
+
+                    <h3 style="color: var(--success-color); margin: 1.5rem 0 1rem;">Əşyanı necə geri ala bilərəm?</h3>
+                    <ol style="line-height: 2; font-size: 1.05rem;">
+                        <li><strong>Müvafiq qurumun itmiş əşyalar anbarına</strong> müraciət edin.</li>
+                        <li>Özünüzlə <strong>şəxsiyyət vəsiqəsi</strong> və ya pasport gətirin.</li>
+                        <li>Əşyanın dəqiq təsvirini (rəng, marka, xüsusi əlamətlər) bildirin.</li>
+                        <li>Tapıntı qeydiyyat nömrəsini (#${item.id}) bildirməniz məsləhətdir.</li>
+                        <li>Əşya 30 gün ərzində sahibinə qaytarılmasa, müvafiq qaydalara uyğun olaraq saxlanılır.</li>
+                    </ol>
+
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: #f0f8ff; border-radius: 8px;">
+                        <strong>Qurumlara görə əlaqə məlumatları (simulyasiya):</strong><br>
+                        • <strong>Metro:</strong> Nizami metrosu yaxınlığındakı Polis İdarəsi və ya 964 qaynar xətt<br>
+                        • <strong>Avtobus (BakuBus):</strong> info@bakubus.az və ya müvafiq MMC binası<br>
+                        • <strong>Qatar (ADY):</strong> 1822 nömrəsinə zəng və ya stansiya məlumat mərkəzi
+                    </div>
+
+                    <p style="margin-top: 2rem; color: var(--text-muted); font-style: italic;">
+                        Qeyd: Bu sistem hackathon layihəsidir. Real qaytarılma prosesi müvafiq dövlət qurumlarının qaydalarına əsasən aparılır.
+                    </p>
+
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <button onclick="closeDetailsModal()" class="btn-primary" style="padding: 0.8rem 2rem;">
+                            Bağla
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Sadə modal yarat
+            let modal = document.getElementById('detailsModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'detailsModal';
+                modal.className = 'modal-overlay';
+                modal.style.zIndex = '2500';
+                document.body.appendChild(modal);
+            }
+            
+            modal.innerHTML = `
+                <div class="modal" style="max-width: 700px;">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Ətraflı Məlumat</h2>
+                        <i class="fas fa-times close-modal" onclick="closeDetailsModal()"></i>
+                    </div>
+                    <div class="modal-body" style="padding: 0;">
+                        ${detailsHTML}
+                    </div>
+                </div>
+            `;
+            modal.classList.add('active');
+        }
+
+        function closeDetailsModal() {
+            const modal = document.getElementById('detailsModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        /* ==========================================================================
+           12. INITIALIZE (TƏTBİQİN BAŞLADILMASI)
+           ========================================================================== */
+        window.onload = () => {
+            // Süni gecikmə (API çağırışını simulyasiya etmək üçün)
+            setTimeout(() => {
+                updateStats();
+                applyFilters(); // Bu funksiya data-nı ilk dəfə render edəcək
+            }, 800);
+        };
+
+    </script>
+</body>
+</html> 
